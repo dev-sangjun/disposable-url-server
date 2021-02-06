@@ -29,8 +29,7 @@ router.get("/:uuid/files", (req, res, next) => {
     3. Send response w/ URLs
   */
   let uuidKeys: string[] = [];
-  removeURL(uuid)
-    .then(() => getFile(uuid))
+  getFile(uuid)
     .then(async data => {
       {
         await Promise.all(
@@ -57,6 +56,7 @@ router.get("/:uuid/files", (req, res, next) => {
         });
       }
     })
+    .then(() => removeURL(uuid))
     .catch(() => res.render("denied", { style: "denied" }));
 });
 
