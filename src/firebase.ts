@@ -9,7 +9,6 @@ const firebaseApp = admin.initializeApp({
 
 const db = firebaseApp.database();
 export const bucket = admin.storage().bucket();
-
 export const uploadFiles = async (
   uuid: string,
   numLimit: number,
@@ -30,12 +29,17 @@ export const uploadFiles = async (
         action: "read",
         expires: Date.now() + ms,
       });
-      deleteFile(uuid, ms).catch(err => console.error(err));
       urls.push(url);
     })
   );
-  db.ref().child(`uploads/${uuid}/urls`).set(urls);
-  db.ref().child(`uploads/${uuid}/num_limit`).set(numLimit);
+  deleteFiles(uuid, ms);
+  return db
+    .ref()
+    .child(`uploads/${uuid}/urls`)
+    .set(urls)
+    .then(() => {
+      db.ref().child(`uploads/${uuid}/num_limit`).set(numLimit);
+    });
 };
 
 export const getFile = (uuid: string) => {
@@ -50,7 +54,7 @@ export const removeURL = async (uuid: string) => {
     .then(async data => {
       const numLimit = Number(data.val());
       await ref.set(numLimit - 1);
-      return numLimit;
+      return numLimit - 1;
     })
     .then(async numLimit => {
       if (numLimit <= 0) await db.ref().child(`uploads/${uuid}`).remove();
@@ -96,7 +100,7 @@ export const deleteFromURLMap = async (uuid: string) => {
 
 const timeout = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const deleteFile = async (uuid: string, ms: number) => {
+const deleteFiles = async (uuid: string, ms: number) => {
   await timeout(ms);
   return bucket
     .deleteFiles({
