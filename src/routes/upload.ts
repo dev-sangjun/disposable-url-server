@@ -1,51 +1,23 @@
 import express from "express";
 import multer from "multer";
-import mongoose from "mongoose";
-import crypto from "crypto";
-import path from "path";
+import { uploadFiles } from "../firebase";
 import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
-let endpoints: Map<string, number> = new Map<string, number>();
-let num = 0;
-
-router.get("/", (req, res, next) => {
-  const uuid = uuidv4();
-  endpoints.set(uuid, num++);
-  console.log(endpoints);
-  res.send(uuid);
+const upload = multer({
+  limits: {
+    fileSize: 8 * 1048576,
+    files: 99,
+  },
 });
-router.get("/:id", (req, res, next) => {
-  const { id } = req.params;
-  const value = endpoints.get(id);
-  if (value == null || value == undefined) {
-    return res.send("No content available");
-  }
-  /*
-    1. Find a matching URL
-    2. Download Data
-    3. Remove files from Google Drive
-    4. Remove the (key, URL) pair from the map
-    5. Return files
-  */
-  endpoints.delete(id);
-  res.json({ value });
-});
-
-const upload = multer();
-router.post("/", upload.array("files", 12), (req, res, next) => {
-  const { files } = req;
+router.post("/", upload.array("files"), (req, res, next) => {
+  const files = req.files as Express.Multer.File[];
+  const numLimit = Number(req.body.numLimit);
+  const expiresIn = Number(req.body.expiresIn);
   const uuid = uuidv4();
-  /*
-    Upload File to Google Drive & retrieve its URL
-    Generate Key
-    Add it to a dictionary [key: url]
-    Return URL w/ key
-  */
-  endpoints.set(uuid, num++);
-  res.json({
-    key: uuid,
-  });
+  uploadFiles(uuid, numLimit, expiresIn, files)
+    .then(() => res.json({ uuid }))
+    .catch(err => next(err));
 });
 
 export default router;

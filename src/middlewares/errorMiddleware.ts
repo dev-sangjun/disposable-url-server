@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 
 const notFound = (req: Request, res: Response, next: NextFunction) => {
-  const err = new Error("Not Found");
   res.status(404);
-  next(err);
+  res.send("<h1>Page Not Found</h1>");
 };
 
 const errorHandler = (

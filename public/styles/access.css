@@ -1,0 +1,13 @@
+.container {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+a {
+  color: white;
+  font-size: 1.17em;
+  text-decoration: none;
+  background-color: #101820;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
