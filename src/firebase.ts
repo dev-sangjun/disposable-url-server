@@ -2,7 +2,7 @@ import admin from "firebase-admin";
 import { v4 as uuidv4 } from "uuid";
 const serviceAccountKey = require("../config/disposable-url-firebase-adminsdk-9rank-78b7acdfda.json");
 const firebaseApp = admin.initializeApp({
-  credential: admin.credential.cert(serviceAccountKey),
+  credential: admin.credential.applicationDefault(),
   storageBucket: "disposable-url.appspot.com",
   databaseURL: "https://disposable-url-default-rtdb.firebaseio.com/",
 });
