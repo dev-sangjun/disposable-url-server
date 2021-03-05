@@ -56,18 +56,17 @@ router.get("/:uuid/files", (req, res, next) => {
         });
       }
     })
-    .then(() => removeURL(uuid))
     .catch(() => res.render("denied", { style: "denied" }));
 });
 
 router.get("/:uuid/link/:uuidKey", async (req, res, next) => {
   const { uuid, uuidKey } = req.params;
-  console.log(uuid, uuidKey);
   checkURLMap(uuid, uuidKey)
     .then(url => {
       axios
         .get(url)
         .then(() => res.redirect(url))
+        .then(() => removeURL(uuid))
         .catch(err => {
           console.log(err.message);
           res.render("denied", { style: "denied" });
